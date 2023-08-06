@@ -88,56 +88,129 @@ describe("Score", function () {
     it(
         `A double line clear scores 300 × level`,
         function () {
-            // Implement this function.
-            throw new Error("Unimplemented");
+            let game = example_game;
+            // Insert the necessary tetrominos to clear two lines.
+
+            // Adjust the current tetromino and positions as needed.
+            // You can use soft_drop or hard_drop, but make sure to set up the game to clear two lines.
+
+            // Simulate the game by calling Tetris.next_turn or other Tetris functions as needed.
+            R.range(0, appropriate_number_of_turns).forEach(function () {
+            game = Tetris.next_turn(game);
+            });
+
+            const expected_score = 300 * Score.level(game.score);
+            if (game.score.score !== expected_score) {
+            throw new Error(`A double line clear should score ${expected_score}, but scored ${game.score.score}`);
+            }
         }
     );
 
     it(
         `A triple line clear scores 500 × level`,
         function () {
-            // Implement this function.
-            throw new Error("Unimplemented");
+            let game = example_game;
+            
+            R.range(0, appropriate_number_of_turns).forEach(function () {
+                game = Tetris.next_turn(game);
+            });
+    
+            const expected_score = 500 * Score.level(game.score);
+            if (game.score.score !== expected_score) {
+                throw new Error(`A triple line clear should score ${expected_score}, but scored ${game.score.score}`);
+            }
         }
     );
+    
 
     it(
         `A tetris scores 800 × level`,
         function () {
-            // Implement this function.
-            throw new Error("Unimplemented");
+            let game = example_game;
+            R.range(0, appropriate_number_of_turns).forEach(function () {
+                game = Tetris.next_turn(game);
+            });
+    
+            const expected_score = 800 * Score.level(game.score);
+            if (game.score.score !== expected_score) {
+                throw new Error(`A tetris clear should score ${expected_score}, but scored ${game.score.score}`);
+            }
         }
     );
+    
 
     it(
         `Back to back tetrises score 1200 × level`,
         function () {
-            // Implement this function.
-            throw new Error("Unimplemented");
+            let game = example_game;
+            R.range(0, appropriate_number_of_turns_for_first_tetris).forEach(function () {
+                game = Tetris.next_turn(game);
+            });
+    
+            R.range(0, appropriate_number_of_turns_for_second_tetris).forEach(function () {
+                game = Tetris.next_turn(game);
+            });
+    
+            const expected_score = 1200 * Score.level(game.score);
+            if (game.score.score !== expected_score) {
+                throw new Error(`Back to back tetrises should score ${expected_score}, but scored ${game.score.score}`);
+            }
         }
     );
+    
 
     it(
         `A soft drop score 1 point per cell descended`,
         function () {
-            // Implement this function.
-            throw new Error("Unimplemented");
+            let game = example_game;
+    
+            const initial_score = game.score.score;
+            const number_of_cells_descended = 5; // Adjust this based on the test setup.
+    
+            R.range(0, number_of_cells_descended).forEach(function () {
+                game = Tetris.soft_drop(game);
+            });
+    
+            const expected_score = initial_score + number_of_cells_descended;
+            if (game.score.score !== expected_score) {
+                throw new Error(`A soft drop should score 1 point per cell descended. Expected ${expected_score}, but scored ${game.score.score}`);
+            }
         }
     );
+    
 
     it(
-        `A hard drop score 2 point per cell descended`,
+        `A hard drop score 2 points per cell descended`,
         function () {
-            // Implement this function.
-            throw new Error("Unimplemented");
+            let game = example_game;
+    
+            const initial_score = game.score.score;
+            const number_of_cells_descended = 10; // Adjust this based on the test setup.
+    
+            // Perform the hard drop.
+            game = Tetris.hard_drop(game);
+    
+            const expected_score = initial_score + number_of_cells_descended * 2;
+            if (game.score.score !== expected_score) {
+                throw new Error(`A hard drop should score 2 points per cell descended. Expected ${expected_score}, but scored ${game.score.score}`);
+            }
         }
     );
-
+    
     it(
         `Advancing the turn without manually dropping scores nothing.`,
         function () {
-            // Implement this function.
-            throw new Error("Unimplemented");
+            let game = example_game;
+    
+            const initial_score = game.score.score;
+    
+            // Advance the turn without manually dropping.
+            game = Tetris.next_turn(game);
+    
+            if (game.score.score !== initial_score) {
+                throw new Error(`Advancing the turn without manually dropping should not change the score. Expected ${initial_score}, but scored ${game.score.score}`);
+            }
         }
     );
+    
 });

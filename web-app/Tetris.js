@@ -3,7 +3,7 @@ import Score from "./Score.js";
 
 /**
  * @namespace Tetris
- * @author A. Freddie Page
+ * @author Kaitai Yang
  * @version 2022.23
  */
 const Tetris = {};
@@ -471,13 +471,16 @@ Tetris.rotate_ccw = function (game) {
     return R.mergeRight(game, {"current_tetromino": new_rotation});
 };
 
-const descend = function (game) {
+const descend = function (game, points = 0) { // 添加了points参数，并设置了默认值0
     const new_position = [game.position[0], game.position[1] + 1];
     if (is_blocked(game.field, game.current_tetromino, new_position)) {
         return game;
     }
-    return R.mergeRight(game, {"position": new_position});
+    const new_game = R.mergeRight(game, { "position": new_position });
+    new_game.score = Score.add_points(new_game.score, points); // 使用Score模块的add_points函数更新分数
+    return new_game;
 };
+
 
 /**
  * Attempt to perform a soft drop, where the piece descends one position.
@@ -492,7 +495,7 @@ Tetris.soft_drop = function (game) {
     if (Tetris.is_game_over(game)) {
         return game;
     }
-    return descend(game);
+    return descend(game, 1);
 };
 
 /**
@@ -509,7 +512,7 @@ Tetris.hard_drop = function (game) {
     if (Tetris.is_game_over(game)) {
         return game;
     }
-    const dropped_once = descend(game);
+    const dropped_once = descend(game, 2);
     if (R.equals(game, dropped_once)) {
         return Tetris.next_turn(game);
     }
@@ -583,6 +586,9 @@ Tetris.next_turn = function (game) {
     // So lock the current piece in place and deploy the next.
     const locked_field = lock(game);
 
+    const numberOfLines = R.count(is_complete_line, locked_field);
+    const newScore = Score.cleared_lines(numberOfLines, game.score);
+
     const cleared_field = clear_lines(locked_field);
 
     const [next_tetromino, bag] = game.bag();
@@ -594,7 +600,7 @@ Tetris.next_turn = function (game) {
         "game_over": false,
         "next_tetromino": next_tetromino,
         "position": starting_position,
-        "score": game.score
+        "score": newScore 
     };
 };
 

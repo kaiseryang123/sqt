@@ -72,9 +72,10 @@ const update_grid = function () {
     );
 
     // Add code to display the score information
-    document.getElementById("score").innerText = game.score.score;
-    document.getElementById("lines-cleared").innerText = game.score.lines_cleared;
-    document.getElementById("level").innerText = Score.level(game.score);
+    document.getElementById("score").innerText = "Score: " + game.score.score;
+    document.getElementById("lines-cleared").innerText = "Lines: " + game.score.lines_cleared;
+    document.getElementById("level").innerText = "Level: " + Score.level(game.score);
+    
 };
 
 // Don't allow the player to hold down the rotate key.

@@ -2,6 +2,32 @@ import Tetris from "../Tetris.js";
 import Score from "../Score.js";
 import R from "../ramda.js";
 
+const custom_game = Tetris.new_game();
+const custom_field_string = `----------
+----------
+----------
+----------
+----------
+----------
+----------
+----------
+----------
+----------
+----------
+----------
+----------
+----------
+----------
+----------
+----------
+----------
+----------
+TSZZ--OOJJ
+TTZL-IOOJJ
+OOOO-IOOJJ`;
+custom_game.field = custom_field_string.split("\n").map(
+    (s) => s.replace(/-/g, " ").split("")
+);
 const example_game = Tetris.new_game();
 const field_string = `----------
 ----------
@@ -28,6 +54,7 @@ TLLL-IOOJJ`;
 example_game.field = field_string.split("\n").map(
     (s) => s.replace(/-/g, " ").split("")
 );
+
 
 describe("Score", function () {
     it(
@@ -71,53 +98,61 @@ describe("Score", function () {
             let game = example_game;
             // Slot a T tetromino into the hole and drop.
             // This can only go one deep.
-            game.current_tetromino = Tetris.Z_tetromino;
+            game.current_tetromino = Tetris.T_tetromino;
 
             // I could use hard_drop here, but that would also score.
             // Instead wait for it to drop 22 times.
             R.range(0, 22).forEach(function () {
                 game = Tetris.next_turn(game);
             });
-
+            const expected_score = 100 * Score.level(game.score);
             if (game.score.score !== 100) {
-                throw new Error("A single row cleared should score 100");
+                throw new Error(`A single line clear should score ${expected_score}, but scored ${game.score.score}`);
             }
         }
     );
+    
+     
 
     it(
-        `A double line clear scores 300 × level`,
+        `A double line clear scores 300 × level`, 
         function () {
-            let game = example_game;
-            // Insert the necessary tetrominos to clear two lines.
-
-            // Adjust the current tetromino and positions as needed.
-            // You can use soft_drop or hard_drop, but make sure to set up the game to clear two lines.
-
-            // Simulate the game by calling Tetris.next_turn or other Tetris functions as needed.
-            R.range(0, appropriate_number_of_turns).forEach(function () {
-            game = Tetris.next_turn(game);
-            });
-
-            const expected_score = 300 * Score.level(game.score);
-            if (game.score.score !== expected_score) {
-            throw new Error(`A double line clear should score ${expected_score}, but scored ${game.score.score}`);
-            }
+         let game = Tetris.new_game();
+    
+         // 将五个O型方块填充到最底部的两行中。
+         for (let i = 0; i < 5; i++) {
+            game.current_tetromino = Tetris.O_tetromino;
+            game.position = [2 * i, Tetris.field_height - 2]; // 设置O型方块的起始位置
+    
+            // 使用硬下落来模拟方块下落。
+            game = Tetris.hard_drop(game);
         }
-    );
+    
+         // 由于我们清除了两行，所以预期得分是300乘以当前等级。
+         const expected_score = 300 * Score.level(game.score);
+         if (game.score.score !== expected_score) {
+            throw new Error(`A double line clear should score ${expected_score}, but scored ${game.score.score}`);
+        }
+    });       
+    
 
     it(
         `A triple line clear scores 500 × level`,
         function () {
-            let game = example_game;
+            let game = custom_game;
             
-            R.range(0, appropriate_number_of_turns).forEach(function () {
+            game.current_tetromino = Tetris.J_tetromino;
+            game = Tetris.rotate_ccw(game);
+
+
+            // I could use hard_drop here, but that would also score.
+            // Instead wait for it to drop 22 times.
+            R.range(0, 22).forEach(function () {
                 game = Tetris.next_turn(game);
             });
-    
             const expected_score = 500 * Score.level(game.score);
-            if (game.score.score !== expected_score) {
-                throw new Error(`A triple line clear should score ${expected_score}, but scored ${game.score.score}`);
+            if (game.score.score !== 500) {
+                throw new Error(`A single line clear should score ${expected_score}, but scored ${game.score.score}`);
             }
         }
     );
@@ -127,36 +162,55 @@ describe("Score", function () {
         `A tetris scores 800 × level`,
         function () {
             let game = example_game;
-            R.range(0, appropriate_number_of_turns).forEach(function () {
+            // Slot a I tetromino into the hole and drop.
+            // This can only go one deep.
+            game.current_tetromino = Tetris.I_tetromino;
+            game = Tetris.rotate_ccw(game);
+
+            // I could use hard_drop here, but that would also score.
+            // Instead wait for it to drop 22 times.
+            R.range(0, 22).forEach(function () {
                 game = Tetris.next_turn(game);
             });
-    
             const expected_score = 800 * Score.level(game.score);
-            if (game.score.score !== expected_score) {
-                throw new Error(`A tetris clear should score ${expected_score}, but scored ${game.score.score}`);
+            if (game.score.score !== 800) {
+                throw new Error(`A single line clear should score ${expected_score}, but scored ${game.score.score}`);
             }
         }
     );
     
 
-    it(
-        `Back to back tetrises score 1200 × level`,
-        function () {
-            let game = example_game;
-            R.range(0, appropriate_number_of_turns_for_first_tetris).forEach(function () {
-                game = Tetris.next_turn(game);
-            });
+    it(`Back-to-Back Tetris scores`, function () {
+        let game = example_game;
     
-            R.range(0, appropriate_number_of_turns_for_second_tetris).forEach(function () {
-                game = Tetris.next_turn(game);
-            });
-    
-            const expected_score = 1200 * Score.level(game.score);
-            if (game.score.score !== expected_score) {
-                throw new Error(`Back to back tetrises should score ${expected_score}, but scored ${game.score.score}`);
-            }
+        // 第一次Tetris
+        game.current_tetromino = Tetris.I_tetromino;
+        game = Tetris.rotate_ccw(game);
+        R.range(0, 22).forEach(function () {
+            game = Tetris.next_turn(game);
+        });
+        const first_tetris_score = 800 * Score.level(game.score);
+        if (game.score.score !== first_tetris_score) {
+            throw new Error(`First Tetris should score ${first_tetris_score}, but scored ${game.score.score}`);
         }
-    );
+    
+        // 重新加载example_game，但保持分数不变
+        let game_after_first_tetris = example_game;
+        game_after_first_tetris.score = game.score;
+    
+        // 第二次Tetris
+        game_after_first_tetris.current_tetromino = Tetris.I_tetromino;
+        game_after_first_tetris = Tetris.rotate_ccw(game_after_first_tetris);
+        R.range(0, 22).forEach(function () {
+            game_after_first_tetris = Tetris.next_turn(game_after_first_tetris);
+        });
+        const second_tetris_score = 1200 * Score.level(game_after_first_tetris.score); // 如果有B2B加成，你可能需要修改这里的得分计算
+        const expected_total_score = first_tetris_score + second_tetris_score;
+        if (game_after_first_tetris.score.score !== expected_total_score) {
+            throw new Error(`Back-to-Back Tetris should score ${expected_total_score}, but scored ${game_after_first_tetris.score.score}`);
+        }
+    });
+    
     
 
     it(
@@ -182,12 +236,12 @@ describe("Score", function () {
     it(
         `A hard drop score 2 points per cell descended`,
         function () {
-            let game = example_game;
+            let game = Tetris.new_game();
     
             const initial_score = game.score.score;
-            const number_of_cells_descended = 10; // Adjust this based on the test setup.
+            const number_of_cells_descended = 21; // Adjust this based on the test setup.
     
-            // Perform the hard drop.
+            game.current_tetromino = Tetris.I_tetromino;
             game = Tetris.hard_drop(game);
     
             const expected_score = initial_score + number_of_cells_descended * 2;
